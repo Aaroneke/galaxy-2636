@@ -904,7 +904,7 @@ _dhd_set_multicast_list(dhd_info_t *dhd, int ifidx)
 	}
 }
 
-static int
+extern int
 _dhd_set_mac_address(dhd_info_t *dhd, int ifidx, struct ether_addr *addr)
 {
 	char buf[32];
@@ -2775,6 +2775,14 @@ fail:
 	return NULL;
 }
 
+#if (defined(RDWR_MACADDR) && !defined(CONFIG_MACH_SAMSUNG_P4LTE))
+extern int CheckRDWR_Macaddr(dhd_info_t *dhd, dhd_pub_t *dhdp, struct ether_addr *mac);
+extern int WriteRDWR_Macaddr(struct ether_addr *mac);
+#endif
+#if defined(CONFIG_MACH_SAMSUNG_P4LTE)
+extern int Write_Macaddr(struct ether_addr *mac);
+#endif
+
 int
 dhd_bus_start(dhd_pub_t *dhdp)
 {
@@ -2873,13 +2881,18 @@ dhd_bus_start(dhd_pub_t *dhdp)
 #ifdef READ_MACADDR
 	dhd_read_macaddr(dhd);
 #endif
+#if (defined(RDWR_MACADDR) && !defined(CONFIG_MACH_SAMSUNG_P4LTE))
+        CheckRDWR_Macaddr(dhd, &dhd->pub, &dhd->pub.mac);
+#endif
 
 	/* Bus is ready, do any protocol initialization */
 	if ((ret = dhd_prot_init(&dhd->pub)) < 0)
 		return ret;
 
-#ifdef WRITE_MACADDR
-	dhd_write_macaddr(dhd->pub.mac.octet);
+#if (defined(RDWR_MACADDR) && !defined(CONFIG_MACH_SAMSUNG_P4LTE))
+        WriteRDWR_Macaddr(&dhd->pub.mac);
+#elif (defined(WRITE_MACADDR) || defined(CONFIG_MACH_SAMSUNG_P4LTE))
+	Write_Macaddr(&dhd->pub.mac);
 #endif
 
 #ifdef ARP_OFFLOAD_SUPPORT

@@ -6,7 +6,7 @@ DHDCFLAGS = -Wall -Wstrict-prototypes -Dlinux -DBCMDRIVER                     \
 	-DCUSTOMER_HW2                                                        \
 	-DMMC_SDIO_ABORT -DBCMSDIO -DBCMLXSDMMC -DBCMPLATFORM_BUS             \
 	-DNEW_COMPAT_WIRELESS -DWIFI_ACT_FRAME -DARP_OFFLOAD_SUPPORT          \
-	-DCSCAN -DGET_CUSTOM_MAC_ENABLE -DPKT_FILTER_SUPPORT                  \
+	-DCSCAN -DPKT_FILTER_SUPPORT                                          \
 	-DEMBEDDED_PLATFORM -DENABLE_INSMOD_NO_FW_LOAD -DPNO_SUPPORT          \
 	-DSET_RANDOM_MAC_SOFTAP -DDHD_USE_EARLYSUSPEND			      \
 	-Idrivers/net/wireless/bcmdhd -Idrivers/net/wireless/bcmdhd/include
@@ -35,6 +35,13 @@ ifneq ($(CONFIG_BCMDHD_BCM4330B1_FW),y)
 DHDCFLAGS += -DKEEP_ALIVE
 else
 DHDCFLAGS += -DUSE_KEEP_ALIVE
+endif
+
+ifeq ($(CONFIG_MACH_SAMSUNG_VARIATION_TEGRA),y)
+bcmdhd-objs += dhd_custom_sec.o
+DHDCFLAGS += -DRDWR_MACADDR
+else
+DHDCFLAGS += -DGET_CUSTOM_MAC_ENABLE
 endif
 
 obj-$(CONFIG_BCMDHD) += bcmdhd.o
