@@ -15,7 +15,11 @@ DHDOFILES = aiutils.o bcmsdh_sdmmc_linux.o dhd_linux.o siutils.o bcmutils.o   \
 	dhd_linux_sched.o bcmwifi.o dhd_sdio.o bcmevent.o dhd_bta.o hndpmu.o  \
 	bcmsdh.o dhd_cdc.o bcmsdh_linux.o dhd_common.o linux_osl.o            \
 	bcmsdh_sdmmc.o dhd_custom_gpio.o sbutils.o wldev_common.o             \
-	wl_android.o wlan_gpio.o
+	wl_android.o
+
+ifeq ($(CONFIG_MACH_SAMSUNG_VARIATION_TEGRA),y)
+bcmdhd-objs += wlan_gpio.o
+endif
 
 ifeq ($(CONFIG_BCMDHD_WIFI_CONTROL_FUNC),y)
 DHDCFLAGS += -DCONFIG_WIFI_CONTROL_FUNC
