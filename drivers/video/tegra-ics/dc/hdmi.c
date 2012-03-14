@@ -777,7 +777,7 @@ bool tegra_dc_hdmi_detect_test(struct tegra_dc *dc, unsigned char *edid_ptr)
 	struct fb_monspecs specs;
 	struct tegra_dc_hdmi_data *hdmi = tegra_dc_get_outdata(dc);
 
-	if (!dc || !hdmi || !edid_ptr) {
+	if (!hdmi || !edid_ptr) {
 		dev_err(&dc->ndev->dev, "HDMI test failed to get arguments.\n");
 		return false;
 	}
@@ -1061,9 +1061,7 @@ static int tegra_dc_hdmi_init(struct tegra_dc *dc)
 	ret = switch_dev_register(&hdmi->hpd_switch);
 
 	if (!ret)
-		ret = device_create_file(hdmi->hpd_switch.dev,
-			&dev_attr_underscan);
-	WARN(ret, "could not create dev_attr_underscan\n");
+		device_create_file(hdmi->hpd_switch.dev, &dev_attr_underscan);
 #endif
 
 	dc->out->depth = 24;
@@ -1084,9 +1082,7 @@ static int tegra_dc_hdmi_init(struct tegra_dc *dc)
 
 	return 0;
 
-#ifdef CONFIG_TEGRA_NVHDCP
 err_edid_destroy:
-#endif
 	tegra_edid_destroy(hdmi->edid);
 err_free_irq:
 	free_irq(gpio_to_irq(dc->out->hotplug_gpio), dc);
@@ -1266,7 +1262,7 @@ static int tegra_dc_hdmi_setup_audio(struct tegra_dc *dc, unsigned audio_freq,
 		a_source = AUDIO_CNTRL0_SOURCE_SELECT_SPDIF;
 
 #if !defined(CONFIG_ARCH_TEGRA_2x_SOC)
-	tegra_hdmi_writel(hdmi,a_source,
+	tegra_hdmi_writel(hdmi,a_source | AUDIO_CNTRL0_INJECT_NULLSMPL,
 			  HDMI_NV_PDISP_SOR_AUDIO_CNTRL0_0);
 	tegra_hdmi_writel(hdmi,
 			  AUDIO_CNTRL0_ERROR_TOLERANCE(6) |
